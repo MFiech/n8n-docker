@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "n8n-workflow-builder": {
+      "url": "http://localhost:3456/sse",
+      "env": {
+        "N8N_API_KEY": "your-n8n-api-key-here",
+        "N8N_BASE_URL": "http://localhost:5678"
+      }
+    }
+  }
+} 
