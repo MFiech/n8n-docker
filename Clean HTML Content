@@ -1,0 +1,164 @@
+// Extract and clean text content from HTML body and SPA script templates
+const cleanedJobs = [];
+
+for (const item of $input.all()) {
+  const jobData = Object.assign({}, item.json);
+
+  if (jobData.data && typeof jobData.data === 'string') {
+    let htmlContent = jobData.data;
+    let cleanedText = '';
+
+    try {
+      // Check if this is a Single Page Application (SPA) with script templates
+      const scriptTemplateMatch = htmlContent.match(/<script[^>]*id=['"]data-job['"][^>]*type=['"]text\/template['"][^>]*>([\s\S]*?)<\/script>/i);
+      
+      if (scriptTemplateMatch && scriptTemplateMatch[1]) {
+        try {
+          // Try to parse the JSON content from the script template
+          const jsonContent = JSON.parse(scriptTemplateMatch[1].trim());
+          
+          let jobContent = '';
+          
+          // Extract title
+          if (jsonContent.title) {
+            jobContent += `Job Title: ${jsonContent.title}\n\n`;
+          }
+          
+          // Extract location
+          if (jsonContent.location && jsonContent.location.name) {
+            jobContent += `Location: ${jsonContent.location.name}\n\n`;
+          }
+          
+          // Extract main job content (usually contains HTML)
+          if (jsonContent.content) {
+            let content = jsonContent.content
+              // Remove HTML tags
+              .replace(/<[^>]*>/g, ' ')
+              // Decode HTML entities
+              .replace(/&nbsp;/g, ' ')
+              .replace(/&amp;/g, '&')
+              .replace(/&lt;/g, '<')
+              .replace(/&gt;/g, '>')
+              .replace(/&quot;/g, '"')
+              .replace(/&#39;/g, "'")
+              // Clean up whitespace
+              .replace(/\s+/g, ' ')
+              .trim();
+            
+            jobContent += content;
+          }
+          
+          // Extract salary/additional info if available
+          if (jsonContent.salary && Array.isArray(jsonContent.salary)) {
+            const relevantFields = jsonContent.salary.filter(item => 
+              item.name && (
+                item.name.toLowerCase().includes('department') ||
+                item.name.toLowerCase().includes('region') ||
+                item.name.toLowerCase().includes('remote') ||
+                item.name.toLowerCase().includes('employment')
+              )
+            );
+            
+            if (relevantFields.length > 0) {
+              jobContent += '\n\nAdditional Information:\n';
+              relevantFields.forEach(field => {
+                if (field.value) {
+                  const value = Array.isArray(field.value) ? field.value.join(', ') : field.value;
+                  jobContent += `${field.name}: ${value}\n`;
+                }
+              });
+            }
+          }
+          
+          if (jobContent.length > 50) {
+            cleanedText = jobContent;
+            jobData.data = cleanedText;
+            cleanedJobs.push(jobData);
+            continue;
+          }
+        } catch (jsonError) {
+          console.log('Error parsing JSON from script template:', jsonError);
+        }
+      }
+
+      // Fallback: Standard HTML cleaning for non-SPA pages
+      // First, try to extract content from the body tag
+      const bodyMatch = htmlContent.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+      if (bodyMatch && bodyMatch[1]) {
+        htmlContent = bodyMatch[1];
+      }
+
+      // Remove script, style, and other non-content elements
+      cleanedText = htmlContent
+        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+        .replace(/<noscript[^>]*>[\s\S]*?<\/noscript>/gi, '')
+        .replace(/<!--[\s\S]*?-->/g, '')
+        .replace(/<head[^>]*>[\s\S]*?<\/head>/gi, '')
+        .replace(/<meta[^>]*\/?>/gi, '')
+        .replace(/<link[^>]*\/?>/gi, '')
+
+        // Convert semantic HTML elements to readable text with spacing
+        .replace(/<\/?(h[1-6])[^>]*>/gi, '\n\n')
+        .replace(/<\/?(p|div|section|article)[^>]*>/gi, '\n')
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<\/?(ul|ol)[^>]*>/gi, '\n')
+        .replace(/<\/li[^>]*>/gi, '\n')
+        .replace(/<li[^>]*>/gi, '• ')
+
+        // Remove remaining HTML tags
+        .replace(/<[^>]*>/g, ' ')
+
+        // Decode common HTML entities
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&apos;/g, "'")
+        .replace(/&rsquo;/g, "'")
+        .replace(/&lsquo;/g, "'")
+        .replace(/&rdquo;/g, '"')
+        .replace(/&ldquo;/g, '"')
+
+        // Clean up whitespace while preserving paragraph structure
+        .replace(/[ \t]+/g, ' ')           // Multiple spaces/tabs to single space
+        .replace(/\n[ \t]+/g, '\n')        // Remove leading spaces on lines
+        .replace(/[ \t]+\n/g, '\n')        // Remove trailing spaces on lines
+        .replace(/\n{3,}/g, '\n\n')        // Multiple newlines to double newlines
+        .trim();
+
+      // Final check - if result is too short, it might be over-cleaned
+      if (cleanedText.length < 50) {
+        // Fallback: minimal cleaning, just remove scripts/styles and decode entities
+        cleanedText = jobData.data
+          .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+          .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+          .replace(/<[^>]*>/g, ' ')
+          .replace(/&nbsp;/g, ' ')
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#39;/g, "'")
+          .replace(/\s+/g, ' ')
+          .trim();
+      }
+
+      jobData.data = cleanedText;
+
+    } catch (error) {
+      console.log('Error cleaning HTML:', error);
+      // Even more minimal fallback
+      jobData.data = jobData.data
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+  }
+
+  cleanedJobs.push(jobData);
+}
+
+return cleanedJobs; 

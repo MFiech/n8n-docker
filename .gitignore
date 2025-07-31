@@ -1,0 +1,46 @@
+# Environment files with secrets
+.env
+.env.local
+.env.production
+
+# Docker volumes data
+data/
+volumes/
+
+# Logs
+*.log
+logs/
+
+# Node modules
+node_modules/
+npm-debug.log*
+
+# Build artifacts
+build/
+dist/
+*.tgz
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+
+# Configuration files with secrets
+config/secrets.json
+mcp.json
+*_with_secrets.yml

@@ -1,0 +1,43 @@
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      # Use SQLite instead of PostgreSQL to match your original setup
+      - DB_TYPE=sqlite
+      # Memory and Node.js optimizations for Puppeteer
+      - NODE_OPTIONS=--max-old-space-size=4096
+      # Puppeteer/Chrome optimizations
+      - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=false
+      - N8N_LOG_LEVEL=info
+    volumes:
+      - n8n-mcp_n8n_data:/home/node/.n8n
+      - /dev/shm:/dev/shm  # Critical for Chrome stability
+    # Add Docker capabilities for Chrome
+    cap_add:
+      - SYS_ADMIN
+    # Increase shared memory
+    shm_size: 2gb
+    # Security options for Chrome
+    security_opt:
+      - seccomp:unconfined
+
+  mcp-server:
+    build: ./mcp-n8n-workflow-builder
+    restart: unless-stopped
+    ports:
+      - "3456:3456"
+    environment:
+      - MCP_STANDALONE=true
+      - MCP_PORT=3456
+      - N8N_API_KEY=${N8N_API_KEY}
+      - N8N_BASE_URL=http://n8n:5678
+    depends_on:
+      - n8n
+
+volumes:
+  n8n-mcp_n8n_data:
+    external: true
+    name: n8n-mcp_n8n_data
