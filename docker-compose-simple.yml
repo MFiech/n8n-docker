@@ -34,6 +34,7 @@ services:
       - MCP_PORT=3456
       - N8N_API_KEY=${N8N_API_KEY}
       - N8N_BASE_URL=http://n8n:5678
+      - N8N_HOST=http://n8n:5678
     depends_on:
       - n8n
 
