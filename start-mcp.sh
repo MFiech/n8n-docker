@@ -9,7 +9,7 @@ if ! docker info > /dev/null 2>&1; then
 fi
 
 # Start the services
-docker-compose up -d
+docker-compose -f docker-compose-simple.yml up -d
 
 # Wait a moment for services to start
 sleep 3
@@ -17,7 +17,7 @@ sleep 3
 # Check service status
 echo ""
 echo "📊 Service Status:"
-docker-compose ps
+docker-compose -f docker-compose-simple.yml ps
 
 # Test MCP server
 echo ""
