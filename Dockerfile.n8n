@@ -14,11 +14,8 @@ RUN apk add --no-cache \
     ca-certificates \
     ttf-freefont
 
-# Install the missing puppeteer plugins globally
-RUN npm install -g puppeteer-extra-plugin-user-preferences puppeteer-extra-plugin-user-data-dir
-
-# Install n8n community node globally (alternative method for Docker)
-RUN npm install -g n8n-nodes-puppeteer-extended
+# Install the main Puppeteer community node (better isolation than extended)
+RUN npm install -g n8n-nodes-puppeteer
 
 # Switch back to the node user for security
 USER node
