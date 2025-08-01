@@ -1,6 +1,8 @@
 services:
   n8n:
-    image: n8nio/n8n:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.n8n
     restart: unless-stopped
     ports:
       - "5678:5678"
@@ -11,7 +13,15 @@ services:
       - NODE_OPTIONS=--max-old-space-size=4096
       # Puppeteer/Chrome optimizations
       - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=false
+      - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+      - CHROME_BIN=/usr/bin/chromium-browser
+      # Puppeteer Chrome arguments for Docker
+      - PUPPETEER_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage,--disable-accelerated-2d-canvas,--no-first-run,--no-zygote,--single-process,--disable-gpu
       - N8N_LOG_LEVEL=info
+      # Fix for file permissions warning
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      # Enable task runners (recommended by n8n)
+      - N8N_RUNNERS_ENABLED=true
     volumes:
       - n8n-mcp_n8n_data:/home/node/.n8n
       - /dev/shm:/dev/shm  # Critical for Chrome stability

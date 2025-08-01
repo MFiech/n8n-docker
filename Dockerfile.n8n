@@ -1,0 +1,26 @@
+# Custom n8n image with puppeteer-extra-plugin-user-preferences
+FROM n8nio/n8n:latest
+
+# Switch to root to install packages
+USER root
+
+# Install Alpine-compatible Chromium and required packages
+RUN apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    freetype-dev \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont
+
+# Install the missing puppeteer plugins globally
+RUN npm install -g puppeteer-extra-plugin-user-preferences puppeteer-extra-plugin-user-data-dir
+
+# Install n8n community node globally (alternative method for Docker)
+RUN npm install -g n8n-nodes-puppeteer-extended
+
+# Switch back to the node user for security
+USER node
+
+# Keep the original entrypoint

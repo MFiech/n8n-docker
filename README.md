@@ -27,7 +27,7 @@ N8N_API_KEY=your-actual-api-key-here
 ### n8n Workflow Automation
 - **URL**: http://localhost:5678
 - **Database**: SQLite (simple, file-based)
-- **Features**: Puppeteer support, Chrome optimizations
+- **Features**: Puppeteer support with Alpine Chromium, community nodes
 
 ### MCP Server (Cursor Integration)
 - **URL**: http://localhost:3456
@@ -82,6 +82,7 @@ The MCP server is pre-configured in `~/.cursor/mcp.json`:
 ```
 ├── docker-compose-simple.yml    # Main Docker Compose configuration
 ├── docker-compose-secure.yml    # Template with environment variables
+├── Dockerfile.n8n               # Custom n8n image with Puppeteer support
 ├── mcp-n8n-workflow-builder/    # MCP server source code
 ├── start-mcp.sh                 # Start both services
 ├── stop-mcp.sh                  # Stop both services
@@ -124,6 +125,21 @@ docker-compose -f docker-compose-simple.yml logs
 If ports 5678 or 3456 are in use:
 1. Stop conflicting services: `lsof -i :5678`
 2. Or modify ports in `docker-compose-simple.yml`
+
+### Puppeteer Issues
+The setup includes Alpine-compatible Chromium for Puppeteer workflows:
+- **Chromium Path**: `/usr/bin/chromium-browser`
+- **Community Node**: `n8n-nodes-puppeteer-extended` pre-installed
+- **Docker Args**: Optimized for containerized Chrome (no-sandbox, etc.)
+
+If Puppeteer fails:
+```bash
+# Check Chromium installation
+docker exec n8n-mcp-n8n-1 chromium-browser --version
+
+# View Puppeteer logs
+docker logs n8n-mcp-n8n-1 | grep -i puppeteer
+```
 
 ## 📊 Monitoring
 
