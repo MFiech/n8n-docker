@@ -14,6 +14,9 @@ RUN apk add --no-cache \
     ca-certificates \
     ttf-freefont
 
+# Install required puppeteer plugins first
+RUN npm install -g puppeteer-extra-plugin-user-preferences puppeteer-extra-plugin-user-data-dir
+
 # Install the main Puppeteer community node (better isolation than extended)
 RUN npm install -g n8n-nodes-puppeteer
 
