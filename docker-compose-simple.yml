@@ -17,6 +17,13 @@ services:
       - CHROME_BIN=/usr/bin/chromium-browser
       # Puppeteer Chrome arguments for Docker
       - PUPPETEER_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage,--disable-accelerated-2d-canvas,--no-first-run,--no-zygote,--single-process,--disable-gpu
+      # Chrome instance isolation for multiple executions (Option 1)
+      - PUPPETEER_NEW_BROWSER_PER_EXECUTION=true
+      - CHROME_NO_FIRST_RUN=true
+      - CHROME_DISABLE_GPU_SANDBOX=true
+      - PUPPETEER_BROWSER_TIMEOUT=60000
+      - CHROME_DISABLE_BACKGROUND_MODE=true
+      - PUPPETEER_CLEANUP_INTERVAL=30000
       - N8N_LOG_LEVEL=info
       # Fix for file permissions warning
       - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
