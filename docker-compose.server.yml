@@ -23,6 +23,7 @@ services:
       - N8N_LOG_LEVEL=info
       - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
       - N8N_RUNNERS_ENABLED=true
+      - N8N_SECURE_COOKIE=false
     volumes:
       - n8n_data:/home/node/.n8n
       - /dev/shm:/dev/shm
