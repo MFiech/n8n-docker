@@ -31,8 +31,6 @@ services:
     volumes:
       - n8n_data:/home/node/.n8n
       - /dev/shm:/dev/shm
-      - /home/podcast/podcast-analyzer-server.tail6ec6d8.ts.net.crt:/home/node/.n8n/ssl/cert.crt:ro
-      - /home/podcast/podcast-analyzer-server.tail6ec6d8.ts.net.key:/home/node/.n8n/ssl/cert.key:ro
     cap_add:
       - SYS_ADMIN
     shm_size: 2gb
