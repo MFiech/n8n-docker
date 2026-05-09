@@ -23,10 +23,16 @@ services:
       - N8N_LOG_LEVEL=info
       - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
       - N8N_RUNNERS_ENABLED=true
-      - N8N_SECURE_COOKIE=false
+      - N8N_PROTOCOL=https
+      - N8N_HOST=podcast-analyzer-server.tail6ec6d8.ts.net
+      - N8N_PORT=5678
+      - N8N_SSL_CERT=/home/node/.n8n/ssl/cert.crt
+      - N8N_SSL_KEY=/home/node/.n8n/ssl/cert.key
     volumes:
       - n8n_data:/home/node/.n8n
       - /dev/shm:/dev/shm
+      - /home/podcast/podcast-analyzer-server.tail6ec6d8.ts.net.crt:/home/node/.n8n/ssl/cert.crt:ro
+      - /home/podcast/podcast-analyzer-server.tail6ec6d8.ts.net.key:/home/node/.n8n/ssl/cert.key:ro
     cap_add:
       - SYS_ADMIN
     shm_size: 2gb
