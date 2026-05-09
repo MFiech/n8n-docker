@@ -1,5 +1,5 @@
 # Custom n8n image with puppeteer-extra-plugin-user-preferences
-FROM n8nio/n8n:latest
+FROM n8nio/n8n:1
 
 # Switch to root to install packages
 USER root
