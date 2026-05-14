@@ -1,26 +1,36 @@
-# Custom n8n image with puppeteer-extra-plugin-user-preferences
-FROM n8nio/n8n:latest
-
-# Switch to root to install packages
-USER root
-
-# Install Alpine-compatible Chromium and required packages
+# Stage 1: Get Chromium from standard Alpine (has apk, same Alpine 3.22 as n8n DHI base)
+FROM alpine:3.22 AS chromium-source
 RUN apk add --no-cache \
     chromium \
     nss \
     freetype \
-    freetype-dev \
     harfbuzz \
     ca-certificates \
     ttf-freefont
 
-# Install required puppeteer plugins first
-RUN npm install -g puppeteer-extra-plugin-user-preferences puppeteer-extra-plugin-user-data-dir
+# Stage 2: n8n DHI image with Chromium injected
+# n8n uses Docker Hub Image Initiative (DHI) which removes apk for security,
+# so we copy Chromium binaries from the Alpine stage instead.
+FROM n8nio/n8n:latest
+USER root
 
-# Install the main Puppeteer community node (better isolation than extended)
-RUN npm install -g n8n-nodes-puppeteer
+# Copy Chromium wrapper script and its data directory
+COPY --from=chromium-source /usr/bin/chromium-browser /usr/bin/chromium-browser
+COPY --from=chromium-source /usr/lib/chromium/ /usr/lib/chromium/
 
-# Switch back to the node user for security
+# Copy NSS libraries (SSL/crypto — Chromium depends on these at runtime)
+COPY --from=chromium-source /usr/lib/libnss3.so /usr/lib/
+COPY --from=chromium-source /usr/lib/libnssutil3.so /usr/lib/
+COPY --from=chromium-source /usr/lib/libsmime3.so /usr/lib/
+COPY --from=chromium-source /usr/lib/libssl3.so /usr/lib/
+COPY --from=chromium-source /usr/lib/libnspr4.so /usr/lib/
+COPY --from=chromium-source /usr/lib/libplc4.so /usr/lib/
+COPY --from=chromium-source /usr/lib/libplds4.so /usr/lib/
+
+# Install n8n Puppeteer community node and required extras
+RUN npm install -g \
+    puppeteer-extra-plugin-user-preferences \
+    puppeteer-extra-plugin-user-data-dir \
+    n8n-nodes-puppeteer
+
 USER node
-
-# Keep the original entrypoint
