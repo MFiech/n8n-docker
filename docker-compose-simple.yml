@@ -41,6 +41,14 @@ services:
     security_opt:
       - seccomp:unconfined
 
+  homepage:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./homepage:/usr/share/nginx/html:ro
+
   mcp-server:
     build: ./mcp-n8n-workflow-builder
     restart: unless-stopped
