@@ -6,7 +6,7 @@ services:
     container_name: n8n
     restart: unless-stopped
     ports:
-      - "5678:5678"
+      - "100.96.216.41:5678:5678"
     environment:
       - DB_TYPE=sqlite
       - NODE_OPTIONS=--max-old-space-size=4096
@@ -23,11 +23,9 @@ services:
       - N8N_LOG_LEVEL=info
       - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
       - N8N_RUNNERS_ENABLED=true
-      - N8N_PROTOCOL=https
-      - N8N_HOST=podcast-analyzer-server.tail6ec6d8.ts.net
+      - N8N_HOST=n8n.thepodcastbrief.com
       - N8N_PORT=5678
-      - N8N_SSL_CERT=/home/node/.n8n/ssl/cert.crt
-      - N8N_SSL_KEY=/home/node/.n8n/ssl/cert.key
+      - N8N_PROTOCOL=https
     volumes:
       - n8n_data:/home/node/.n8n
       - /dev/shm:/dev/shm
@@ -38,10 +36,13 @@ services:
       - seccomp:unconfined
     networks:
       - n8n-network
+      - edge
 
 networks:
   n8n-network:
     name: n8n-network
+  edge:
+    external: true
 
 volumes:
   n8n_data:
