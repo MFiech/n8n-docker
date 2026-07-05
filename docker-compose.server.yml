@@ -26,6 +26,7 @@ services:
       - N8N_HOST=n8n.thepodcastbrief.com
       - N8N_PORT=5678
       - N8N_PROTOCOL=https
+      - WEBHOOK_URL=https://n8n.thepodcastbrief.com/
     volumes:
       - n8n_data:/home/node/.n8n
       - /dev/shm:/dev/shm
